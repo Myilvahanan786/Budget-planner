@@ -379,13 +379,12 @@
     var outerRadius = Math.min(cx, cy) - 10;
     var innerRadius = outerRadius * 0.55;
 
-    var isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     ctx.font = "14px -apple-system, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     if (total === 0) {
-      ctx.fillStyle = isDark ? "#9aa3b8" : "#667085";
+      ctx.fillStyle = "#b45309";
       ctx.fillText("No expenses this month", cx, cy);
       el.pieLegend.innerHTML = "";
       return;
@@ -410,11 +409,11 @@
     ctx.fill();
     ctx.globalCompositeOperation = "source-over";
 
-    ctx.fillStyle = isDark ? "#e7eaf2" : "#1a2233";
+    ctx.fillStyle = "#c2410c";
     ctx.font = "bold 16px -apple-system, sans-serif";
     ctx.fillText(formatCurrency(total), cx, cy - 8);
     ctx.font = "12px -apple-system, sans-serif";
-    ctx.fillStyle = isDark ? "#9aa3b8" : "#667085";
+    ctx.fillStyle = "#b45309";
     ctx.fillText("total spent", cx, cy + 12);
 
     el.pieLegend.innerHTML = "";
@@ -444,9 +443,8 @@
     var ctx = canvas.getContext("2d");
     clearCanvas(ctx, canvas);
 
-    var isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var gridColor = isDark ? "#2a3145" : "#e3e7ed";
-    var textColor = isDark ? "#9aa3b8" : "#667085";
+    var gridColor = "#fed7aa";
+    var textColor = "#b45309";
 
     var months = lastNMonths(6, currentMonth);
     var data = months.map(function (key) {
@@ -596,13 +594,6 @@
     save();
     renderAll();
   });
-
-  if (window.matchMedia) {
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-      renderPieChart();
-      renderBarChart();
-    });
-  }
 
   // ---------- init ----------
   function init() {
