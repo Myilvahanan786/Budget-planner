@@ -2,8 +2,25 @@
   "use strict";
 
   var STORAGE_KEY = "budgetPlannerData_v1";
-  var CURRENCY_LOCALE = "en-US";
-  var CURRENCY_CODE = "USD";
+  var DEFAULT_CURRENCY = "USD";
+
+  var CURRENCIES = [
+    { code: "USD", symbol: "$", name: "US Dollar" },
+    { code: "EUR", symbol: "€", name: "Euro" },
+    { code: "GBP", symbol: "£", name: "British Pound" },
+    { code: "INR", symbol: "₹", name: "Indian Rupee" },
+    { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+    { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+    { code: "CAD", symbol: "CA$", name: "Canadian Dollar" },
+    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+    { code: "CHF", symbol: "CHF", name: "Swiss Franc" },
+    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+    { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
+    { code: "ZAR", symbol: "R", name: "South African Rand" },
+    { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+    { code: "MXN", symbol: "MX$", name: "Mexican Peso" },
+    { code: "NGN", symbol: "₦", name: "Nigerian Naira" }
+  ];
 
   var CATEGORIES = {
     income: ["Salary", "Freelance", "Investments", "Gifts", "Other Income"],
@@ -22,7 +39,8 @@
 
   var state = {
     transactions: [],
-    budgets: {}
+    budgets: {},
+    settings: { currency: DEFAULT_CURRENCY }
   };
   var currentMonth = monthKey(new Date());
   var activeType = "expense";
@@ -38,6 +56,10 @@
         }
         if (parsed && parsed.budgets && typeof parsed.budgets === "object") {
           state.budgets = parsed.budgets;
+        }
+        if (parsed && parsed.settings && typeof parsed.settings.currency === "string" &&
+            CURRENCIES.some(function (c) { return c.code === parsed.settings.currency; })) {
+          state.settings.currency = parsed.settings.currency;
         }
       }
     } catch (e) {
@@ -69,13 +91,20 @@
   }
 
   function formatCurrency(n) {
-    return new Intl.NumberFormat(CURRENCY_LOCALE, { style: "currency", currency: CURRENCY_CODE }).format(n || 0);
+    try {
+      return new Intl.NumberFormat(undefined, { style: "currency", currency: state.settings.currency }).format(n || 0);
+    } catch (e) {
+      // Fallback if the browser's Intl data doesn't recognize the code
+      var meta = CURRENCIES.filter(function (c) { return c.code === state.settings.currency; })[0];
+      var symbol = meta ? meta.symbol : "$";
+      return symbol + (n || 0).toFixed(2);
+    }
   }
 
   function formatMonthLabel(key) {
     var parts = key.split("-");
     var d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
-    return d.toLocaleDateString(CURRENCY_LOCALE, { month: "long", year: "numeric" });
+    return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   }
 
   function shiftMonth(key, delta) {
@@ -111,6 +140,7 @@
 
   // ---------- DOM refs ----------
   var el = {
+    currencySelect: document.getElementById("currencySelect"),
     prevMonth: document.getElementById("prevMonth"),
     nextMonth: document.getElementById("nextMonth"),
     monthLabel: document.getElementById("currentMonthLabel"),
@@ -163,6 +193,17 @@
     fillSelect(el.budgetCategory, CATEGORIES.expense, null);
     var allCategories = CATEGORIES.income.concat(CATEGORIES.expense);
     fillSelect(el.filterCategory, allCategories, "All Categories");
+  }
+
+  function refreshCurrencySelect() {
+    el.currencySelect.innerHTML = "";
+    CURRENCIES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.code;
+      o.textContent = c.code + " (" + c.symbol + ") — " + c.name;
+      el.currencySelect.appendChild(o);
+    });
+    el.currencySelect.value = state.settings.currency;
   }
 
   // ---------- rendering ----------
@@ -456,7 +497,7 @@
       ctx.fillStyle = textColor;
       var parts = d.key.split("-");
       var label = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1)
-        .toLocaleDateString(CURRENCY_LOCALE, { month: "short" });
+        .toLocaleDateString(undefined, { month: "short" });
       ctx.fillText(label, groupX, padding.top + chartH + 8);
     });
   }
@@ -550,6 +591,12 @@
   el.filterType.addEventListener("change", renderTransactionTable);
   el.exportBtn.addEventListener("click", exportCsv);
 
+  el.currencySelect.addEventListener("change", function () {
+    state.settings.currency = el.currencySelect.value;
+    save();
+    renderAll();
+  });
+
   if (window.matchMedia) {
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
       renderPieChart();
@@ -562,6 +609,7 @@
     load();
     refreshTxCategoryOptions();
     refreshStaticSelects();
+    refreshCurrencySelect();
     el.txDate.value = todayStr();
     renderAll();
   }

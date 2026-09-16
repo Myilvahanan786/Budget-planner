@@ -11,6 +11,7 @@ A simple, self-contained personal finance app for tracking income, expenses, and
 - **Charts** — an expense breakdown donut chart by category, and a 6-month income vs. expenses bar chart. Both are drawn with plain `<canvas>` — no external chart library or CDN required, so the app works fully offline.
 - **Filter & search transactions** — filter the transaction table by category or type.
 - **CSV export** — download all transactions as a CSV file.
+- **Currency selector** — pick your currency from the dropdown in the header (USD, EUR, GBP, INR, JPY, and more). This changes how amounts are *displayed* everywhere in the app; it does not convert existing amounts between currencies (there's no live exchange-rate service — this is an offline, backend-free app), so switch currencies before you start entering data, not partway through.
 - **Light/dark mode** — follows your OS theme automatically.
 - **Private by default** — all data stays in your browser's `localStorage`; nothing is sent to a server.
 
@@ -41,5 +42,5 @@ All transactions and budget limits are stored under a single `localStorage` key 
 
 ## Customizing
 
-- **Currency**: change `CURRENCY_LOCALE` / `CURRENCY_CODE` near the top of `js/app.js`.
+- **Currency**: use the dropdown in the header, or add more currencies by editing the `CURRENCIES` array near the top of `js/app.js`.
 - **Categories**: edit the `CATEGORIES` object in `js/app.js` to add/remove income or expense categories (and add a matching entry to `CATEGORY_COLORS` for chart coloring).

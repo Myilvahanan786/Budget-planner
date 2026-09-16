@@ -15,10 +15,16 @@
       <h1>💰 Budget Planner</h1>
       <p class="tagline">Track income, expenses, and stay on budget</p>
     </div>
-    <div class="month-nav">
-      <button id="prevMonth" class="icon-btn" type="button" aria-label="Previous month">‹</button>
-      <span id="currentMonthLabel" class="month-label"></span>
-      <button id="nextMonth" class="icon-btn" type="button" aria-label="Next month">›</button>
+    <div class="header-controls">
+      <label class="currency-picker">
+        <span class="sr-only">Currency</span>
+        <select id="currencySelect" aria-label="Currency"></select>
+      </label>
+      <div class="month-nav">
+        <button id="prevMonth" class="icon-btn" type="button" aria-label="Previous month">‹</button>
+        <span id="currentMonthLabel" class="month-label"></span>
+        <button id="nextMonth" class="icon-btn" type="button" aria-label="Next month">›</button>
+      </div>
     </div>
   </header>
 
